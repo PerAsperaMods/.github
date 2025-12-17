@@ -1,4 +1,4 @@
-# PerAspera Modding Framework
+# 🚀 Per Aspera Modding Framework - Official Documentation
 
 🌍 **Welcome to the international Per Aspera modding community!**
 
@@ -7,7 +7,7 @@
 [![Community](https://img.shields.io/badge/Discord-Join%20Us-purple.svg)](https://discord.gg/peraspera-modding)
 [![Workshop](https://img.shields.io/badge/Steam-Workshop-blue.svg)](https://steamcommunity.com/workshop/browse/?appid=944290)
 
-## 🚀 What is Per Aspera Modding?
+## 🎮 What is Per Aspera Modding?
 
 Per Aspera is a Mars terraforming strategy game where you build colonies and transform the red planet into a habitable world. Our modding framework provides comprehensive tools for creating sophisticated modifications:
 
@@ -16,38 +16,104 @@ Per Aspera is a Mars terraforming strategy game where you build colonies and tra
 - **🏗️ Building Integration**: Monitor and modify infrastructure behavior
 - **📊 Event System**: Comprehensive event handling for all game activities  
 - **⚙️ Override System**: Dynamic runtime modification of game values
-- **🛠️ Developer Tools**: Intelligent configuration, debugging, and deployment
+- **🤖 Intelligent Agent System**: AI-powered development assistance
+- **🛠️ Developer Tools**: Professional debugging, testing, and deployment
 
-## 📚 Documentation Structure
+---
 
-### 🎯 Getting Started
-- **[Installation & Setup](Installation-Setup)** - Complete development environment setup
-- **[Your First Mod](First-Mod-Tutorial)** - Step-by-step beginner tutorial
-- **[Architecture Overview](Architecture-Overview)** - Understanding SDK design
-- **[Quick Reference](Quick-Reference)** - Common tasks and code snippets
+## 📖 Quick Navigation
 
-### 🔧 Core Systems
-- **[SDK API Reference](SDK-API-Reference)** - Complete ModSDK documentation
-- **[Climate System Guide](Climate-System-Guide)** - Atmospheric simulation APIs
-- **[Building System Guide](Building-System-Guide)** - Infrastructure management
-- **[Event System Guide](Event-System-Guide)** - Event handling and custom events
-- **[Override System Guide](Override-System-Guide)** - Dynamic value modification
+### 🌟 Getting Started
+- **[Installation Guide](getting-started/Installation.md)** - Set up your development environment (5 min)
+- **[Your First Mod](getting-started/First-Mod.md)** - Create a working mod (15 min)
+- **[Project Structure](getting-started/Project-Structure.md)** - Understand the framework architecture
+- **[Build & Deploy](getting-started/Build-Deploy.md)** - Compile and test your mods
+- **[Quick Reference](getting-started/Quick-Reference.md)** - Common code patterns
 
-### 🏗️ Advanced Topics
-- **[Performance Optimization](Performance-Guide)** - Efficient mod development
-- **[Debugging & Troubleshooting](Debugging-Guide)** - Common issues and solutions
-- **[Multi-Mod Compatibility](Compatibility-Guide)** - Working with other mods
-- **[Custom Systems Development](Custom-Systems-Guide)** - Extending the framework
+### 🤖 Intelligent Agent System  
+- **[Agent System Overview](agents/Overview.md)** - How AI assistants help you mod
+- **[BepInEx Development Agent](agents/BepInEx-Agent.md)** - C# plugin & IL2CPP expert
+- **[YAML Datamodel Agent](agents/YAML-Agent.md)** - Game data modification expert
+- **[SDK Usage Agent](agents/SDK-Agent.md)** - Game API wrapper expert
+- **[CI/CD Automation Agent](agents/CICD-Agent.md)** - GitHub Actions expert
+- **[Architecture Design Agent](agents/Architecture-Agent.md)** - System design expert
+
+### 📚 Common Modding Tasks
+- **[Modifying Buildings](tutorials/Buildings.md)** - Change stats, behavior, and production
+- **[Adding Resources](tutorials/Resources.md)** - Create or modify resource types
+- **[Technology Trees](tutorials/Technology.md)** - Modify research and dependencies
+- **[Event Handling](tutorials/Events.md)** - React to game events in your code
+- **[UI Customization](tutorials/UI.md)** - Add custom interface elements
+- **[Climate Modification](tutorials/Climate.md)** - Alter terraforming mechanics
+
+### 🔧 SDK API Reference
+- **[ModSDK Overview](sdk/Overview.md)** - High-level event-driven SDK
+- **[Core API](sdk/Core-API.md)** - PerAspera.Core utilities & extensions
+- **[Game Wrappers](sdk/Wrappers.md)** - Type-safe game object access
+- **[Event System](sdk/Events.md)** - Complete event documentation
+- **[Climate API](sdk/Climate.md)** - Terraforming system helpers
+- **[Commands API](sdk/Commands.md)** - Game command integration
+- **[Override System](sdk/Overrides.md)** - Runtime value modification
+
+### 🎮 Native Game Classes
+- **[BaseGame](native-classes/BaseGame.md)** - Core game singleton & lifecycle
+- **[Universe](native-classes/Universe.md)** - Universe, factions & global state
+- **[Planet](native-classes/Planet.md)** - Planet systems, buildings & resources
+- **[Building](native-classes/Building.md)** - Building mechanics & production
+- **[Resource](native-classes/Resource.md)** - Resource management & flow
+- **[Technology](native-classes/Technology.md)** - Research trees & unlocks
+- **[Atmosphere](native-classes/Atmosphere.md)** - Climate & terraforming
+
+### 🛠️ Advanced Development
+- **[BepInEx IL2CPP](advanced/BepInEx-IL2CPP.md)** - Low-level plugin development
+- **[Harmony Patching](advanced/Harmony-Patching.md)** - Runtime code modification
+- **[Performance Optimization](advanced/Performance.md)** - Efficient mod patterns
+- **[Debugging Guide](advanced/Debugging.md)** - Troubleshoot issues effectively
+- **[IL2CPP Interop](advanced/IL2CPP-Interop.md)** - Working with IL2CPP types
+- **[Multi-Mod Compatibility](advanced/Compatibility.md)** - Play nice with others
+
+### 🏗️ Architecture & Design
+- **[Architecture Overview](architecture/Overview.md)** - Design patterns for complex mods
+- **[Multi-Mod Compatibility](architecture/Compatibility.md)** - Mod communication protocols
+- **[Testing Strategies](architecture/Testing.md)** - Unit and integration testing
+
+### 🤝 Community
+- **[Contributing Guidelines](community/Contributing.md)** - How to contribute to the SDK
+- **[Code of Conduct](community/Code-of-Conduct.md)** - Community standards
+- **[Release Notes](community/CHANGELOG.md)** - Version history
 
 ### 📦 Content Modification
-- **[YAML Datamodel Guide](YAML-Datamodel-Guide)** - Buildings, resources, technologies
-- **[Localization Guide](Localization-Guide)** - Multi-language support
-- **[Asset Creation](Asset-Creation-Guide)** - Graphics and audio
+- **[YAML Datamodel Guide](content/YAML-Datamodel.md)** - Buildings, resources, tech
+- **[Localization Guide](content/Localization.md)** - Multi-language support
+- **[Asset Creation](content/Asset-Creation.md)** - Graphics, audio & UI
+- **[Save Compatibility](content/Save-Compatibility.md)** - Maintain save file integrity
 
-### 🧪 Examples & Samples
-- **[Code Examples](Code-Examples)** - Ready-to-use code snippets
-- **[Complete Mod Projects](Sample-Projects)** - Full implementations
-- **[Best Practices](Best-Practices)** - Professional development patterns
+### 🐛 Troubleshooting
+- **[Common Errors](troubleshooting/Common-Errors.md)** - Quick fixes for frequent issues
+- **[Build Problems](troubleshooting/Build-Problems.md)** - Compilation & reference errors
+- **[Runtime Issues](troubleshooting/Runtime-Issues.md)** - Crashes & exceptions
+- **[IL2CPP Errors](troubleshooting/IL2CPP-Errors.md)** - Type conversion problems
+
+### 🌍 Community & Resources
+- **[Contributing Guide](community/Contributing.md)** - How to contribute to SDK
+- **[Code Standards](community/Code-Standards.md)** - Conventions & best practices
+- **[Release Process](community/Release-Process.md)** - Publishing your mods
+- **[Steam Workshop](community/Steam-Workshop.md)** - Share with the community
+- **[FAQ](community/FAQ.md)** - Frequently asked questions
+
+---
+
+## 🎯 Quick Start Paths
+
+| I want to... | Start here... |
+|--------------|---------------|
+| **Create my first mod** | [Installation Guide](getting-started/Installation.md) → [First Mod](getting-started/First-Mod.md) |
+| **Modify building stats** | [Buildings Tutorial](tutorials/Buildings.md) |
+| **Use AI agent help** | [Agent System Overview](agents/Overview.md) |
+| **Fix an error** | [Troubleshooting](troubleshooting/Common-Errors.md) |
+| **Use high-level SDK** | [SDK Overview](sdk/Overview.md) |
+| **Write advanced patches** | [BepInEx IL2CPP](advanced/BepInEx-IL2CPP.md) |
+| **Publish on Workshop** | [Steam Workshop Guide](community/Steam-Workshop.md) |
 
 ## 🌍 International Community
 
