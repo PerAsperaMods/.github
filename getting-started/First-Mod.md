@@ -67,24 +67,9 @@ Replace `MarsStatistics.csproj` content:
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <!-- BepInEx IL2CPP Framework -->
-  <ItemGroup>
-    <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-*" />
-    <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
-  </ItemGroup>
-
-  <!-- Per Aspera ModSDK -->
-  <ItemGroup>
-    <Reference Include="PerAspera.ModSDK">
-      <HintPath>..\..\SDK\bin\Debug\net6.0\PerAspera.ModSDK.dll</HintPath>
-    </Reference>
-    <Reference Include="PerAspera.Core">
-      <HintPath>..\..\SDK\bin\Debug\net6.0\PerAspera.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="PerAspera.GameAPI">
-      <HintPath>..\..\SDK\bin\Debug\net6.0\PerAspera.GameAPI.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+  <!-- 🎯 SDK-ONLY TEMPLATE - SINGLE DEPENDENCY -->
+  <!-- Import Per Aspera SDK (includes ALL dependencies automatically) -->
+  <Import Project="$(MSBuildThisFileDirectory)..\..\SDK\sdkDLL.props" />
 
   <!-- Auto-deploy to game on build -->
   <Target Name="DeployToGame" AfterTargets="Build">
@@ -97,7 +82,45 @@ Replace `MarsStatistics.csproj` content:
 </Project>
 ```
 
-**Note:** Adjust paths if your game/SDK location differs.
+**🚀 SDK-Only Architecture Benefits:**
+- ✅ **Zero duplication** - No manual DLL references needed
+- ✅ **Auto-updates** - SDK changes propagate automatically  
+- ✅ **Simplified maintenance** - Single source of truth
+- ✅ **Performance optimized** - Unified dependency management
+
+### 💡 About sdkDLL.props (Updated Architecture)
+
+The `Import Project="$(MSBuildThisFileDirectory)..\..\SDK\sdkDLL.props"` line automatically includes ALL Per Aspera modding dependencies:
+
+✅ **SDK Components (9 DLLs included automatically):**
+- `PerAspera.Core.dll` - Core utilities and LogAspera
+- `PerAspera.Core.IL2CppExtensions.dll` - IL2CPP type extensions  
+- `PerAspera.GameAPI.dll` - Main game API access
+- `PerAspera.GameAPI.Wrappers.dll` - Safe type wrappers (Planet, Universe, BaseGame)
+- `PerAspera.GameAPI.Events.dll` - Enhanced Events v2.0 system
+- `PerAspera.GameAPI.Climate.dll` - Climate and atmosphere systems
+- `PerAspera.GameAPI.Commands.dll` - Command system integration
+- `PerAspera.GameAPI.Overrides.dll` - Runtime modification helpers
+- `PerAspera.ModSDK.dll` - Complete mod SDK
+
+✅ **Framework Dependencies (included automatically):**
+- **Unity Engine 2020.3.49 LTS** - Complete Unity API access
+- **BepInEx 6 IL2CPP** - Plugin framework and lifecycle
+- **HarmonyLib** - Runtime patching capabilities  
+- **IL2CPP Interop** - Native type conversion
+
+**🎯 Migration Note:** This replaces the old GameLibs approach - no manual DLL references needed!
+- `PerAspera.GameAPI.Commands.dll` - Command system integration
+- `PerAspera.GameAPI.Events.dll` - Event subscription system
+- `PerAspera.GameAPI.Overrides.dll` - Runtime value modification
+- `PerAspera.GameAPI.Wrappers.dll` - Safe type wrappers
+- `PerAspera.ModSDK.dll` - Complete SDK framework
+
+✅ **Benefits:**
+- **Simplified setup** - One line vs manual references
+- **Auto-updated** - Always uses current SDK version  
+- **Consistent** - Same configuration across all mods
+- **Maintainable** - Central SDK management
 
 ---
 
@@ -107,9 +130,11 @@ Delete `Class1.cs` and create `MarsStatisticsPlugin.cs`:
 
 ```csharp
 using BepInEx;
+using BepInEx.Unity.IL2CPP;
 using BepInEx.Logging;
 using PerAspera.ModSDK;
 using PerAspera.GameAPI.Wrappers;
+using PerAspera.GameAPI.Events.SDK;
 using PerAspera.GameAPI.Events.Data;
 
 namespace MarsStatistics;
@@ -130,21 +155,21 @@ public class MarsStatisticsPlugin : PerAsperaSDKPlugin
         Logger.LogInfo("🚀 Mars Statistics Mod loaded!");
         Logger.LogInfo("Starting terraforming monitoring...");
 
-        // Subscribe to game initialization
-        SDK.Events.GameFullyLoaded += OnGameLoaded;
+        // Subscribe to game initialization using Enhanced Events v2.0
+        EnhancedEvents.Subscribe<GameFullyLoadedEvent>(SDKEventConstants.GameFullyLoaded, OnGameLoaded);
         
         // Subscribe to daily events
-        SDK.Events.MartianDayChanged += OnDayChanged;
+        EnhancedEvents.Subscribe<MartianDayEvent>(SDKEventConstants.MartianDayChanged, OnDayChanged);
         
         // Subscribe to climate updates
-        SDK.Events.ClimateAnalysisComplete += OnClimateUpdate;
+        EnhancedEvents.Subscribe<ClimateAnalysisEvent>(SDKEventConstants.ClimateAnalysisComplete, OnClimateUpdate);
         
         // Subscribe to building events
-        SDK.Events.BuildingSpawned += OnBuildingSpawned;
-        SDK.Events.BuildingDespawned += OnBuildingDespawned;
+        EnhancedEvents.Subscribe<BuildingSpawnedEvent>(SDKEventConstants.BuildingSpawned, OnBuildingSpawned);
+        EnhancedEvents.Subscribe<BuildingDespawnedEvent>(SDKEventConstants.BuildingDespawned, OnBuildingDespawned);
     }
 
-    private void OnGameLoaded()
+    private void OnGameLoaded(GameFullyLoadedEvent eventData)
     {
         Logger.LogInfo("========================");
         Logger.LogInfo("🌍 Game Loaded - Initializing Statistics");
@@ -157,7 +182,7 @@ public class MarsStatisticsPlugin : PerAsperaSDKPlugin
         Logger.LogInfo($"📊 Starting Buildings: {_totalBuildings}");
     }
 
-    private void OnDayChanged(MartianDayEventData eventData)
+    private void OnDayChanged(MartianDayEvent eventData)
     {
         _totalDaysPassed++;
         
@@ -174,7 +199,7 @@ public class MarsStatisticsPlugin : PerAsperaSDKPlugin
         }
     }
 
-    private void OnClimateUpdate(ClimateEventData eventData)
+    private void OnClimateUpdate(ClimateAnalysisEvent eventData)
     {
         _currentTemperature = eventData.Temperature;
         
@@ -187,14 +212,14 @@ public class MarsStatisticsPlugin : PerAsperaSDKPlugin
         CheckTerraformingMilestones(eventData);
     }
 
-    private void OnBuildingSpawned(BuildingEventData eventData)
+    private void OnBuildingSpawned(BuildingSpawnedEvent eventData)
     {
         _totalBuildings++;
         Logger.LogInfo($"🏗️ Building Constructed: {eventData.BuildingName}");
         Logger.LogInfo($"   Total Buildings: {_totalBuildings}");
     }
 
-    private void OnBuildingDespawned(BuildingEventData eventData)
+    private void OnBuildingDespawned(BuildingDespawnedEvent eventData)
     {
         _totalBuildings--;
         Logger.LogInfo($"💥 Building Removed: {eventData.BuildingName}");

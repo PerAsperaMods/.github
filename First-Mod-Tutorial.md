@@ -60,9 +60,14 @@ Edit `MarsClimateMonitor.csproj`:
     <Version>1.0.0</Version>
   </PropertyGroup>
 
+  <!-- BepInEx IL2CPP Framework -->
   <ItemGroup>
-    <PackageReference Include="PerAspera.ModSDK" Version="1.1.0" />
+    <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-*" />
+    <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
   </ItemGroup>
+
+  <!-- Import Per Aspera SDK DLLs (all SDK components included automatically) -->
+  <Import Project="..\..\SDK_DLL\sdkDLL.props" />
 
 </Project>
 ```

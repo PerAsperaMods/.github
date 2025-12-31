@@ -201,10 +201,15 @@ ApplyRuntimePatches = true
      
      <ItemGroup>
        <PackageReference Include="BepInEx.Unity.IL2CPP" Version="6.0.0-*" />
-       <PackageReference Include="PerAspera.ModSDK" Version="1.1.0" />
+       <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" />
      </ItemGroup>
+
+     <!-- Import Per Aspera SDK DLLs (simplified configuration) -->
+     <Import Project="..\SDK_DLL\sdkDLL.props" />
    </Project>
    ```
+
+   💡 **Note**: The `sdkDLL.props` import automatically includes all SDK components. See [SDK DLL Props Guide](../reference/SDK-DLL-Props-Guide.md) for details.
 
 3. **Create TestMod.cs**:
    ```csharp

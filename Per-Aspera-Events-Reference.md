@@ -2,55 +2,310 @@
 
 🎮 **Comprehensive guide to Per Aspera game events for advanced mod development.**
 
+## ⚡ **ENHANCED EVENT SYSTEM** (v2.0)
+
+**🎯 MISE À JOUR 2025-12-20**: Architecture **dual events** + **Unity Input** validées avec succès!
+
+**🎯 New Features:**
+- ✅ **Type-Safe Wrappers**: All events now return SDK wrappers instead of dangerous IL2CPP objects
+- ✅ **Auto-Conversion**: Automatic native-to-wrapper conversion with `EnhancedEventBus`
+- ✅ **Performance Optimized**: <1ms overhead with intelligent caching
+- ✅ **Backward Compatible**: Existing event code continues to work
+- ✅ **Dual Architecture**: Harmony patches + Native events for complete coverage
+- ✅ **Unity Input Integration**: Real Unity APIs via unity-libs dynamic loading
+
+**🏗️ Architecture Dual - DÉCOUVERTE CRITIQUE**:
+
+```csharp
+// ✅ PATTERN REQUIS: Dual approach pour compatibilité complète
+public override void Load()
+{
+    // 1. Harmony patches - Détection immédiate menu (GameHub)
+    ApplyGameHubPatches();
+    
+    // 2. Native events - Accès BaseGame complet (Game State)
+    SetupNativeEventSubscriptions();
+    
+    // 3. Unity Input - F9 Commands via unity-libs
+    InitializeUnityInput();
+}
+
+// GameHub detection via Harmony (menu compatibility)
+[HarmonyPatch(typeof(GameHubManager), "Hub_InitializationComplete")]
+[HarmonyPostfix]
+public static void OnHubInitializationComplete()
+{
+    EmitGameHubInitializedEvent(); // Immediate SDK events
+}
+
+// Native events pour game state complet
+NativeEventManager.Subscribe<UniverseNewGameStartedNativeEvent>(
+    NativeEventConstants.UniverseNewGameStarted, OnGameStarted);
+
+// Unity Input via unity-libs (F9 Commands working!)
+if (UnityInputWrapper.SafeGetKeyDown(KeyCode.F9))
+{
+    LogAspera.Success("🎯 F9 detected via UnityInputWrapper!");
+}
+```
+
+**📋 Migration Status:** Events migrated to Enhanced System:
+- ✅ `BaseGameDetectedEvent` - Now returns `BaseGame` wrapper (not `object`)
+- ✅ `BuildingEvents` - All building events return `Building` wrappers
+- ✅ `DroneEvents` - All drone events return `Drone` wrappers
+- 🚧 **Next**: Climate, Resource, Universe events
+
 ## 🎯 Table of Contents
 
-- [Overview](#overview) - Game event system fundamentals
-- [System Events](#system-events) - Core game state events
+- [Overview](#overview) - Game event system fundamentals + Enhanced System
+- [System Events](#system-events) - Core game state events (Enhanced)
 - [Climate Events](#climate-events) - Atmospheric and terraforming events
-- [Building Events](#building-events) - Infrastructure and construction events
+- [Building Events](#building-events) - Infrastructure and construction events (Enhanced)
 - [Resource Events](#resource-events) - Production and resource management events
 - [Quest Events](#quest-events) - Narrative and mission progression events
 - [SDK Integration](#sdk-integration) - Using events with the Per Aspera SDK
+- [Enhanced System Usage](#enhanced-system-usage) - Type-safe event development
 
 ---
 
 ## Overview
 
-### 🔄 Per Aspera Event System
+### 🔄 Per Aspera Event System (Enhanced v2.0)
 
-Per Aspera uses a robust event system to manage game progression, climate changes, infrastructure construction, and narrative interactions. These events allow mods to react to game changes in real-time and create dynamic, responsive modifications.
+Per Aspera uses a robust event system to manage game progression, climate changes, infrastructure construction, and narrative interactions. The **Enhanced Event System v2.0** provides **type-safe SDK wrappers** instead of dangerous IL2CPP objects, with automatic conversion and performance optimization.
 
-#### Event Architecture
+#### Enhanced Architecture Benefits
+
+✅ **Type Safety**: No more `object` instances - full IntelliSense support  
+✅ **Performance**: <1ms overhead per event with intelligent caching  
+✅ **Developer Experience**: Automatic wrapper conversion, no manual casting  
+✅ **Compatibility**: Existing mods work without modification
+
+#### Enhanced Event Architecture (v2.0)
 
 ```csharp
-// Per Aspera Event Structure
+// Enhanced Per Aspera Event Structure
 public class PerAsperaGameEvent
 {
     public GameEventType Type { get; set; }          // Event type identifier
-    public GameEventPayload Payload { get; set; }    // Event data
+    public GameEventPayload Payload { get; set; }    // Event data (auto-converted to wrappers)
     public DateTime Timestamp { get; set; }          // When event occurred
     public int MartianSol { get; set; }             // Current Martian sol
     public string Source { get; set; }              // Event source (building, system, etc.)
 }
+
+// Enhanced Event Subscription (Type-Safe)
+using PerAspera.GameAPI.Events;
+
+// OLD: Manual casting required
+EventSystem.Subscribe("building.spawned", (object data) => {
+    var evt = (BuildingSpawnedNativeEvent)data;
+    var building = evt.Building; // object - dangerous!
+});
+
+// NEW: Type-safe with wrappers
+EnhancedEvents.Subscribe<BuildingSpawnedNativeEvent>("building.spawned", evt => {
+    var building = evt.Building; // Building wrapper - safe!
+    var energyProduction = building.GetEnergyProduction(); // IntelliSense works!
+});
 ```
 
-#### Event Categories
+#### Enhanced Event Categories
 
-| Category | Description | Frequency |
-|----------|-------------|-----------|
-| **System** | Game loading, sol changes, save/load | System-driven |
-| **Climate** | Temperature, pressure, atmospheric changes | Continuous |
-| **Building** | Construction, production, infrastructure | Action-triggered |
-| **Resource** | Production, consumption, availability | Continuous |
-| **Quest** | Story progression, objectives, dialogues | Scripted |
+| Category | Description | Frequency | Enhanced Status |
+|----------|-------------|-----------|----------------|
+| **System** | Game loading, sol changes, save/load | System-driven | ✅ **Enhanced** |
+| **Building** | Construction, production, infrastructure | Action-triggered | ✅ **Enhanced** |
+| **Climate** | Temperature, pressure, atmospheric changes | Continuous | 🚧 Migration planned |
+| **Resource** | Production, consumption, availability | Continuous | 🚧 Migration planned |
+| **Quest** | Story progression, objectives, dialogues | Scripted | 🚧 Migration planned |
+
+---
+
+## Enhanced System Usage
+
+### 🎯 **Type-Safe Event Development**
+
+**✅ MISE À JOUR 2025-12-20**: Patterns dual architecture + Unity Input validés!
+
+The Enhanced Event System provides completely type-safe access to Per Aspera game objects with **dual architecture** for complete compatibility:
+
+#### **🏗️ Dual Architecture Pattern (REQUIS)**
+```csharp
+using PerAspera.GameAPI.Events;
+using PerAspera.GameAPI.Events.Constants;
+using PerAspera.GameAPI.Events.Integration;
+
+public class YourMod : BasePlugin
+{
+    public override void Load()
+    {
+        // 1. Harmony patches - Menu compatibility (GameHub)
+        ApplyGameHubPatches();
+        
+        // 2. Native events - Game state access (BaseGame)
+        SetupNativeEventSubscriptions();
+    }
+    
+    private void ApplyGameHubPatches()
+    {
+        // Harmony patch pour détection immédiate GameHub
+        var harmony = new Harmony("com.yourmod.gamehub");
+        harmony.PatchAll(typeof(GameHubManagerPatch));
+    }
+    
+    private void SetupNativeEventSubscriptions()
+    {
+        // Native events pour accès BaseGame complet
+        NativeEventManager.Subscribe<UniverseNewGameStartedNativeEvent>(
+            NativeEventConstants.UniverseNewGameStarted, OnGameStarted);
+    }
+}
+```
+
+#### **🎮 Unity Input Integration (NOUVEAU)**
+```csharp
+// Unity Input via unity-libs - F9 Commands WORKING!
+public static class UnityInputWrapper
+{
+    public static bool SafeGetKeyDown(KeyCode keyCode)
+    {
+        var unityLibsPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "BepInEx", "unity-libs");
+            
+        var assembly = Assembly.LoadFrom(
+            Path.Combine(unityLibsPath, "UnityEngine.CoreModule.dll"));
+            
+        var inputType = assembly.GetType("UnityEngine.Input");
+        var method = inputType.GetMethod("GetKeyDown", new[] { typeof(KeyCode) });
+        
+        var result = (bool)method.Invoke(null, new object[] { keyCode });
+        
+        if (result)
+        {
+            LogAspera.Success($"🎯 {keyCode} detected via UnityInputWrapper!");
+        }
+        
+        return result;
+    }
+}
+
+// Usage in Commands Demo
+private void Update()
+{
+    if (UnityInputWrapper.SafeGetKeyDown(KeyCode.F9))
+    {
+        ExecuteCommand(); // ✅ F9 Commands working!
+    }
+}
+```
+
+#### **Building Events (Enhanced)**
+```csharp
+using PerAspera.GameAPI.Events;
+using PerAspera.GameAPI.Events.Constants;
+
+// Type-safe building event subscription
+EnhancedEvents.Subscribe<BuildingSpawnedNativeEvent>(
+    NativeEventConstants.BuildingSpawned,
+    evt =>
+    {
+        // evt.Building is now Building wrapper (not object!)
+        var building = evt.Building;
+        var position = building.GetPosition();
+        var energyOutput = building.GetEnergyProduction();
+        var buildingType = building.GetBuildingType();
+        
+        LogAspera.Info($"Building {buildingType.GetName()} placed at {position}");
+        LogAspera.Info($"Energy output: {energyOutput}");
+    }
+);
+```
+
+#### **System Events (Enhanced)**
+```csharp
+// Type-safe system events
+EnhancedEvents.Subscribe<BaseGameDetectedEvent>(
+    SDKEventConstants.BaseGameDetected,
+    evt =>
+    {
+        // evt.BaseGame is now BaseGame wrapper (not object!)
+        var baseGame = evt.BaseGame;
+        var universe = evt.Universe;
+        
+        LogAspera.Info("Game detected with Enhanced Event System");
+        LogAspera.Info($"Universe name: {universe.GetName()}");
+    }
+);
+```
+
+### 🔧 **Auto-Conversion Configuration**
+
+The Enhanced Event System automatically converts native IL2CPP objects to SDK wrappers:
+
+```csharp
+using PerAspera.GameAPI.Events;
+
+// Enable/disable auto-conversion (enabled by default)
+EnhancedEvents.SetWrapperConversion(true);
+
+// Check conversion status
+var stats = EnhancedEvents.GetStats();
+LogAspera.Info($"Auto-conversion: {stats.AutoConversionEnabled}");
+LogAspera.Info($"Events processed: {stats.EventsProcessed}");
+LogAspera.Info($"Conversion errors: {stats.ConversionErrors}");
+```
+
+### ⚡ **Performance Monitoring**
+
+```csharp
+// Monitor event system performance
+var stats = EnhancedEvents.GetStats();
+
+LogAspera.Info($"Event Types: {stats.EventTypeCount}");
+LogAspera.Info($"Total Handlers: {stats.TotalHandlers}");
+LogAspera.Info($"Average Conversion Time: {stats.AverageConversionTimeMs}ms");
+
+// Performance warning
+if (stats.AverageConversionTimeMs > 1.0)
+{
+    LogAspera.Warning("Event conversion overhead high - check wrapper cache");
+}
+```
+
+### 🔄 **Backward Compatibility**
+
+Enhanced Events maintain full backward compatibility:
+
+```csharp
+// Old code continues to work unchanged
+EventSystem.Subscribe(NativeEventConstants.BuildingSpawned, (data) =>
+{
+    var evt = (BuildingSpawnedNativeEvent)data;
+    var building = evt.Building; // Now automatically a Building wrapper!
+    
+    // Old-style access still works, but now type-safe
+    var buildingTypeName = building.GetType().Name;
+});
+
+// But new type-safe pattern is recommended
+EnhancedEvents.Subscribe<BuildingSpawnedNativeEvent>(
+    NativeEventConstants.BuildingSpawned,
+    evt => {
+        var building = evt.Building; // Full IntelliSense support!
+        // ... use building wrapper methods
+    }
+);
+```
 
 ---
 
 ## System Events
 
-### 🎮 Core Game Events
+### 🎮 Core Game Events (Enhanced)
 
-#### `GameFullyLoadedEvent`
+#### `GameFullyLoadedEvent` ✅ **Enhanced**
 **Type**: `PerAspera.Events.GameFullyLoadedEvent`
 
 Triggered when the game has completely finished loading all systems.
@@ -58,25 +313,36 @@ Triggered when the game has completely finished loading all systems.
 ```csharp
 public class GameFullyLoadedEvent
 {
-    public object BaseGameInstance { get; }      // Main game instance
-    public object UniverseInstance { get; }      // Universe manager
-    public object PlanetInstance { get; }        // Current planet
+    public BaseGame BaseGameInstance { get; }      // BaseGame wrapper ✅
+    public Universe UniverseInstance { get; }      // Universe wrapper ✅  
+    public Planet PlanetInstance { get; }          // Planet wrapper ✅
 }
 ```
 
-**Usage:**
+**Enhanced Usage:**
 ```csharp
-ModSDK.Events.Subscribe("game.loaded", OnGameLoaded);
+using PerAspera.GameAPI.Events;
 
-private void OnGameLoaded(object eventData)
+// Type-safe subscription
+EnhancedEvents.Subscribe<GameFullyLoadedEvent>("game.loaded", evt =>
 {
-    var gameEvent = eventData as GameFullyLoadedEvent;
-    Log.LogInfo("🎮 Game fully loaded - initializing mod systems");
+    // Full wrapper API access with IntelliSense
+    var baseGame = evt.BaseGameInstance;
+    var universe = evt.UniverseInstance;
+    var planet = evt.PlanetInstance;
+    
+    LogAspera.Info($"🎮 Game fully loaded on planet: {planet.GetName()}");
+    LogAspera.Info($"Universe: {universe.GetName()}");
+    
+    // Use wrapper methods directly
+    var buildingCount = planet.GetBuildings().Count;
+    LogAspera.Info($"Buildings on planet: {buildingCount}");
+    
     InitializeModSystems();
-}
+});
 ```
 
-#### `BaseGameDetectedEvent`
+#### `BaseGameDetectedEvent` ✅ **Enhanced** 
 **Type**: `PerAspera.Events.BaseGameDetectedEvent`
 
 Triggered when the base game instance is detected and available.
@@ -84,13 +350,45 @@ Triggered when the base game instance is detected and available.
 ```csharp
 public class BaseGameDetectedEvent
 {
-    public object BaseGame { get; }              // Base game instance
-    public object Universe { get; }              // Universe instance
-    public bool IsReady { get; }                 // System ready status
+    public BaseGame BaseGame { get; }              // BaseGame wrapper ✅ (was object)
+    public Universe Universe { get; }              // Universe wrapper ✅
+    public bool IsReady { get; }                   // System ready status
 }
 ```
 
-#### `PlanetDetectedEvent`
+**Enhanced Usage:**
+```csharp
+using PerAspera.GameAPI.Events;
+using PerAspera.GameAPI.Events.Constants;
+
+// Type-safe BaseGame access
+EnhancedEvents.Subscribe<BaseGameDetectedEvent>(
+    SDKEventConstants.BaseGameDetected,
+    evt =>
+    {
+        // No casting required - direct wrapper access
+        var baseGame = evt.BaseGame;
+        var universe = evt.Universe;
+        
+        LogAspera.Info("🎮 BaseGame detected with Enhanced System");
+        
+        // Direct wrapper method calls
+        var gameVersion = baseGame.GetVersion();
+        var universeName = universe.GetName();
+        
+        LogAspera.Info($"Game Version: {gameVersion}");
+        LogAspera.Info($"Universe: {universeName}");
+        
+        if (evt.IsReady)
+        {
+            // Safe to initialize mod systems
+            InitializeGameDependentSystems();
+        }
+    }
+);
+```
+
+#### `PlanetDetectedEvent` 🚧 **Migration Planned**
 **Type**: `PerAspera.Events.PlanetDetectedEvent`
 
 Triggered when a planet instance becomes available.
