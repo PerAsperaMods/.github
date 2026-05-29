@@ -35,16 +35,32 @@ This is a **Per Aspera** Unity IL2CPP game modding project with **BepInEx 6.x** 
 - 🏗️ **Architecture planning** for complex mods
 - 🎯 **SDK-focused development** with 8 specialized SDK agents
 
-## � Knowledge Skills (Slash Commands)
+## 🧩 Knowledge Skills (Slash Commands)
 
 Load these on-demand by typing `/` in chat, or they are auto-loaded when relevant:
 
+### 🔧 Core Development Skills
 | Skill | Trigger | Description |
 |-------|---------|-------------|
 | `/per-aspera-project-setup` | New mod, .csproj, first build | Project creation, sdkDLL.props template, GUID convention, deploy path, VS Code tasks |
 | `/per-aspera-il2cpp-gotchas` | Error, exception, IL2CPP, Type conflict | 10 common IL2CPP pitfalls with exact code fixes |
 | `/per-aspera-sdk-quickref` | SDK, GameApi, wrapper, event, LogAspera | SDK access patterns, EnhancedEventBus signatures, minimal plugin template |
 | `/per-aspera-debug-workflow` | Debug, crash, log, BepInX, not working | Log file locations, error anatomy, debug cycle, common fixes |
+| `/per-aspera-code-patterns` | Pattern, MonoBehaviour, Input, KeyCode, hallucination | Validated IL2CPP patterns, anti-patterns, System.Type rules, Mirror patterns |
+
+### 📦 SDK Component Skills
+| Skill | Trigger | Description |
+|-------|---------|-------------|
+| `/per-aspera-events-sdk` | Subscribe, event, ModEventBus, GameEvents, CS0029 | Events system: GameEvents constants, ModEventBus, WrapperFactory patterns, CS0029/CS0019 fixes |
+| `/per-aspera-commands-sdk` | Command, ImportResource, CommandExecutor, builder | Commands API: IGameCommand, CommandResult, builder pattern, async execution |
+| `/per-aspera-wrappers-sdk` | Wrapper, Atmosphere, Planet, Keeper, GetMemberValue | Wrappers: Atmosphere/Planet/Building access, WrapperFactory, IL2CPP extensions |
+| `/per-aspera-climate-sdk` | Climate, temperature, atmosphere, greenhouse, pressure | Climate API: AtmosphereSimulator, TemperatureCalculator, WaterCycle, formulas |
+| `/per-aspera-gameapi-overrides` | Override, GetterOverride, solar efficiency, energy multiplier | GameAPI + GetterOverride: register/enable runtime value overrides, OverridePatchSystem |
+
+### 📄 Content & Data Skills
+| Skill | Trigger | Description |
+|-------|---------|-------------|
+| `/per-aspera-yaml-modding` | YAML, building, resource, technology, knowledge, manifest | Complete YAML reference: all properties, tags, index rules, validated examples |
 
 **Skill files**: `F:\ModPeraspera\.github\skills\<name>\SKILL.md`
 
