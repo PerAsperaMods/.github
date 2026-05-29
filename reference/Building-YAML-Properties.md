@@ -1,103 +1,299 @@
 # Building YAML Properties Reference
 
-## 📚 Introduction
+## 📚 Source
 
-This reference documents **Building YAML properties** based on the official ISA modding manual v2.0. These properties define building behavior, costs, production, and characteristics.
+**Source authoritative** : `buildingParamlist.csv` — liste complète des champs C# de la classe `BuildingType` extraite par décompilation IL2CPP.
 
-**⚠️ Critical Warning:** The official documentation contains **obsolete and incorrect** property names. Many properties listed in the official manual **do not exist** in the current game version. This document compares official documentation with validated current data.
+**Règle clé** : Per Aspera utilise un désérialiseur YAML custom par **réflexion sur le nom du champ**. Les champs `private`, `protected` et `public` sont **tous sérialisables** depuis YAML. Ne pas se fier à l'accessibilité C# pour décider si un attribut peut être défini en YAML.
 
-**Sources:**
-- ISA Quantum AI Laboratory Modding Manual v2.0 (official but potentially obsolete)
-- Current game datamodel validation (Internal_doc/Yaml/)
-- Working mod examples (Yaml-Mods/)
+> **YAML key = nom du champ C#** (sans underscore préfixe, sans `_003C..._003Ek__BackingField` pour les backing fields de propriétés auto).
 
 ---
 
-## 🚨 Validation Status
+## 📑 Table of Contents
 
-### ✅ **Validated Properties** (Confirmed in current game)
-These properties have been verified against working mod examples:
-
-```yaml
-building_example:
-  name: "Building Name"                    # ✅ Confirmed
-  category: !buildingCategory energy      # ✅ Confirmed  
-  cost:                                   # ✅ Confirmed
-    - !resource metal: 100
-    - !resource concrete: 50
-  description: "Building description"      # ✅ Confirmed
-```
-
-### ⚠️ **Unvalidated Properties** (From official manual)
-These properties are from the official manual but **require validation**:
-
-```yaml
-# ⚠️ WARNING: These may not work in current game version
-building_questionable:
-  maxSolarPowerProduction: 100    # ⚠️ May be obsolete
-  colonistCapacity: 50            # ⚠️ May be obsolete
-  militaryDroneCapacity: 10       # ⚠️ May be obsolete
-  co2ConversionPerDay: 25         # ⚠️ May be obsolete
-```
+- [Identity & Display](#identity--display)
+- [Category & Unlock](#category--unlock)
+- [Resources & Production](#resources--production)
+- [Health & Durability](#health--durability)
+- [Visuals & Placement](#visuals--placement)
+- [Workers](#workers)
+- [Power & Energy](#power--energy)
+- [Military & Defense](#military--defense)
+- [Upgrades](#upgrades)
+- [Maintenance](#maintenance)
+- [Infrastructure & Storage](#infrastructure--storage)
+- [Atmosphere & Environment](#atmosphere--environment)
+- [Terrain & Placement Constraints](#terrain--placement-constraints)
+- [Ships & Transport](#ships--transport)
+- [Coastal & Water](#coastal--water)
+- [Farming](#farming)
+- [Pipes / Water Network](#pipes--water-network)
+- [Districts & Hubs](#districts--hubs)
+- [Humidity](#humidity)
 
 ---
 
-## 📋 Property Categories (Official Manual)
+## Identity & Display
 
-### 🏗️ Basic Building Properties
+| YAML key | C# field | Type | Description |
+|----------|----------|------|-------------|
+| `name` | `name` | `string` | Nom du bâtiment (clé de localisation ou texte brut) |
+| `namePrefix` | `namePrefix` | `string` | Préfixe affiché avant le nom |
+| `compactName` | `_003CcompactName_003Ek__BackingField` | `string` | Nom court pour l'UI compacte |
+| `description` | `description` | `string` | Description (clé de localisation ou texte brut) |
+| `notEnoughBuildings` | `notEnoughBuildings` | `string` | Message quand le nombre de bâtiments est insuffisant |
 
-| Property | Type | Description | Status |
-|----------|------|-------------|--------|
-| `name` | String | Building name or localization key | ✅ Validated |
-| `description` | String | Building description or localization key | ✅ Validated |
-| `categoryType` | Reference | Building category for UI panels | ⚠️ May be `category` |
-| `knowledge` | Reference | Knowledge unlocked when building unlocked | ⚠️ Unvalidated |
+---
 
-**Example:**
+## Category & Unlock
+
+| YAML key | C# field | Type | Description |
+|----------|----------|------|-------------|
+| `categoryType` | `categoryType` | `!buildingCategory` | Catégorie UI du bâtiment |
+| `knowledge` | `_003Cknowledge_003Ek__BackingField` | `!knowledge` | Connaissance requise pour débloquer |
+| `availability` | `availability` | `Availability` | Condition de disponibilité |
+
+---
+
+## Resources & Production
+
+| YAML key | C# field | Type | Description |
+|----------|----------|------|-------------|
+| `inputResources` | `inputResources` | `Dictionary<!resource, CargoQuantity>` | Ressources consommées par cycle |
+| `inputResourcesKeys` | `inputResourcesKeys` | `List<!resource>` | Clés des ressources en entrée (ordre d'affichage) |
+| `extractionLevel` | `extractionLevel` | `int` | Niveau d'extraction (1, 2, 3…) |
+| `requiredResourceVein` | `requiredResourceVein` | `!resource` | Type de gisement requis à l'emplacement |
+| `scalesToResourceVein` | `_scalesToResourceVein` | `bool` | Production proportionnelle à la richesse du gisement |
+| `displayInputs` | `displayInputs` | `List<!resource>` | Ressources affichées comme entrées dans l'UI (override) |
+| `displayOutputs` | `displayOutputs` | `List<!resource>` | Ressources affichées comme sorties dans l'UI (override) |
+| `outputResource` | `outputResource` | `!resource` | Ressource produite |
+| `outputQuantity` | `outputQuantity` | `CargoQuantity` | Quantité produite par cycle |
+| `progressPerDay` | `progressPerDay` | `float` | Avancement par jour (1.0 = 1 jour/cycle) |
+| `producingLabel` | `producingLabel` | `string` | Label de production affiché dans l'UI |
+| `clearOutQuantity` | `clearOutQuantity` | `CargoQuantity` | Quantité évacuée lors d'un clearout |
+| `clearoutThreshold` | `clearoutThreshold` | `float` | Seuil de remplissage déclenchant le clearout |
+| `requiredConstructionResources` | `requiredConstructionResources` | `Dictionary<!resource, CargoQuantity>` | Ressources nécessaires à la construction |
+| `initialStock` | `initialStock` | `Dictionary<!resource, CargoQuantity>` | Stock initial au démarrage |
+
+**Exemple :**
 ```yaml
-building_solar_advanced:
-  name: "Advanced Solar Panel"
-  description: "High-efficiency solar panel"
-  category: !buildingCategory energy     # Note: official says "categoryType"
-  knowledge: !knowledge solar_technology
-```
-
-### 💰 Construction & Resources
-
-| Property | Type | Description | Status |
-|----------|------|-------------|--------|
-| `requiredConstructionResources` | Array | Resources needed to build | ⚠️ May be `cost` |
-| `inputResources` | Array | Resources consumed per cycle | ⚠️ Unvalidated |
-| `outputResource` | Reference | Resource produced | ⚠️ May be different |
-| `outputQuantity` | Number | Quantity produced per cycle | ⚠️ Unvalidated |
-| `progressPerDay` | Number | Production cycle progress per day | ⚠️ Unvalidated |
-| `initialStock` | Array | Starting resources in building | ⚠️ Unvalidated |
-
-**Example (Official - May Not Work):**
-```yaml
-# ⚠️ WARNING: Official syntax may be incorrect
-building_processor:
-  requiredConstructionResources:    # May be "cost" instead
-    - !resource metal: 150
-    - !resource electronics: 75
-  inputResources:                   # May not exist
-    - !resource iron_ore: 10
-  outputResource: !resource steel   # May be different syntax
+building_my_processor:
+  inputResources:
+    !resource resource_iron_ore: 10
+  outputResource: !resource resource_steel
   outputQuantity: 5
   progressPerDay: 1.0
+  requiredConstructionResources:
+    !resource resource_metal: 150
+    !resource resource_concrete: 50
+  displayInputs:
+    - !resource resource_iron_ore
+  displayOutputs:
+    - !resource resource_steel
 ```
 
-### ⚡ Power & Energy
+---
 
-| Property | Type | Description | Status |
-|----------|------|-------------|--------|
-| `maxSolarPowerProduction` | Number | Solar power output | ⚠️ Likely obsolete |
-| `maxEolicPowerProduction` | Number | Wind power output | ⚠️ Likely obsolete |
-| `maxThermalPowerProduction` | Number | Thermal power output | ⚠️ Likely obsolete |
-| `maxFissionPowerProduction` | Number | Nuclear fission output | ⚠️ Likely obsolete |
-| `maxFusionPowerProduction` | Number | Nuclear fusion output | ⚠️ Likely obsolete |
-| `powerConsumption` | Number | Power required to operate | ⚠️ Unvalidated |
-| `powerPriority` | Number | Power allocation priority | ⚠️ Unvalidated |
+## Health & Durability
+
+| YAML key | C# field | Type | Description |
+|----------|----------|------|-------------|
+| `maxHealth` | `maxHealth` | `float` | Points de vie maximum |
+| `healthLossPerDay` | `healthLossPerDay` | `float` | Dégradation par jour (0 = pas de dégradation) |
+
+---
+
+## Visuals & Placement
+
+| YAML key | C# field | Type | Description |
+|----------|----------|------|-------------|
+| `prefabName` | `prefabName` | `string` | Nom du prefab 3D Unity |
+| `rubblePrefabName` | `rubblePrefabName` | `string` | Prefab des décombres après destruction |
+| `iconName` | `iconName` | `Sprite` | Icône dans les menus de construction |
+| `rivalIconName` | `rivalIconName` | `Sprite` | Icône variante rivale |
+| `orbitalIconName` | `orbitalIconName` | `Sprite` | Icône vue orbitale |
+| `emptyHubIconName` | `emptyHubIconName` | `Sprite` | Icône hub vide |
+| `progressBarNames` | `progressBarNames` | `List<string>` | Noms des barres de progression |
+| `textureOverrides` | `textureOverrides` | `List<TextureOverrideData>` | Overrides de texture du modèle |
+| `categorySoundOverride` | `categorySoundOverride` | `string` | Son de catégorie personnalisé |
+| `waySnapRadius` | `_waySnapRadius` | `float` | Rayon de snap sur les routes |
+| `reservedRadius` | `_reservedRadius` | `float` | Zone de dégagement autour du bâtiment |
+| `jumpRadius` | `jumpRadius` | `float` | Rayon de saut pour les drones |
+
+---
+
+## Workers
+
+| YAML key | C# field | Type | Description |
+|----------|----------|------|-------------|
+| `colonistCapacity` | `colonistCapacity` | `int` | Nombre de colons logés ou employés |
+| `droneCapacity` | `droneCapacity` | `int` | Nombre de drones de travail |
+
+---
+
+## Power & Energy
+
+| YAML key | C# field | Type | Description |
+|----------|----------|------|-------------|
+| `maxSolarPowerProduction` | `maxSolarPowerProduction` | `float` | Production solaire maximale (kW) |
+| `maxEolicPowerProduction` | `maxEolicPowerProduction` | `float` | Production éolienne maximale (kW) |
+| `maxThermalPowerProduction` | `maxThermalPowerProduction` | `float` | Production thermique maximale (kW) |
+| `maxFissionPowerProduction` | `maxFissionPowerProduction` | `float` | Production par fission (kW) |
+| `maxFusionPowerProduction` | `maxFusionPowerProduction` | `float` | Production par fusion (kW) |
+| `powerConsumption` | `powerConsumption` | `float` | Consommation électrique (kW) |
+| `powerPriority` | `powerPriority` | `float` | Priorité dans l'allocation d'énergie |
+| `energyStorageCapacity` | `energyStorageCapacity` | `float` | Capacité de stockage d'énergie (kWh) |
+| `extendsPowerCluster` | `extendsPowerCluster` | `bool` | Étend le réseau électrique |
+| `powerClusterRadius` | `powerClusterRadius` | `float` | Rayon d'extension du réseau électrique |
+| `maxPowerTransfer` | `maxPowerTransfer` | `float` | Transfert électrique maximum |
+
+---
+
+## Military & Defense
+
+| YAML key | C# field | Type | Description |
+|----------|----------|------|-------------|
+| `militaryDroneCapacity` | `militaryDroneCapacity` | `int` | Nombre de drones militaires |
+| `defensiveMissilesPerDay` | `defensiveMissilesPerDay` | `float` | Missiles défensifs lancés par jour |
+| `missileRange` | `missileRange` | `float` | Portée des missiles |
+| `missileDamage` | `missileDamage` | `float` | Dégâts par missile |
+| `scannerScanRadius` | `scannerScanRadius` | `float` | Rayon de détection du scanner |
+| `scannerScanTime` | `scannerScanTime` | `float` | Durée d'un scan |
+| `scannerTimeFactor` | `scannerTimeFactor` | `float` | Facteur de vitesse du scanner |
+| `spawnRevealRadius` | `spawnRevealRadius` | `float` | Rayon de révélation à la pose |
+
+---
+
+## Upgrades
+
+| YAML key | C# field | Type | Description |
+|----------|----------|------|-------------|
+| `isUpgradeTo` | `isUpgradeTo` | `List<!building>` | Bâtiments que celui-ci peut upgrader |
+
+```yaml
+building_water_mine_2:
+  isUpgradeTo:
+    - !building building_water_mine_1
+```
+
+---
+
+## Maintenance
+
+| YAML key | C# field | Type | Description |
+|----------|----------|------|-------------|
+| `maintenancePriority` | `maintenancePriority` | `float` | Priorité de maintenance |
+| `extendsMaintenanceCluster` | `extendsMaintenanceCluster` | `bool` | Étend le réseau de maintenance |
+| `maintenanceClusterRadius` | `maintenanceClusterRadius` | `float` | Rayon d'extension du réseau de maintenance |
+
+---
+
+## Infrastructure & Storage
+
+| YAML key | C# field | Type | Description |
+|----------|----------|------|-------------|
+| `enablesHyperloopConnection` | `enablesHyperloopConnection` | `bool` | Permet la connexion hyperloop |
+| `maxStorageCapacity` | `maxStorageCapacity` | `int` | Capacité de stockage interne |
+| `hasSpacePort` | `hasSpacePort` | `bool` | Possède un port spatial |
+| `nodeType` | `nodeType` | `NodeType` | Type de nœud réseau |
+
+---
+
+## Atmosphere & Environment
+
+| YAML key | C# field | Type | Description |
+|----------|----------|------|-------------|
+| `co2ConversionPerDay` | `co2ConversionPerDay` | `float` | CO2 converti par jour |
+| `gasReleaseAmount` | `gasReleaseAmount` | `float` | Quantité de gaz relâchée |
+| `canSpawnLichenAndPlants` | `canSpawnLichenAndPlants` | `bool` | Peut faire apparaître lichens et plantes |
+| `canSpawnCyanobacteria` | `canSpawnCyanobacteria` | `bool` | Peut faire apparaître des cyanobactéries |
+| `deforestationRadius` | `deforestationRadius` | `float` | Rayon de déforestation |
+| `deforestationTime` | `deforestationTime` | `float` | Durée de déforestation |
+| `humidityRadius` | `humidityRadius` | `float` | Rayon d'effet d'humidité |
+| `humidityPercentege` | `humidityPercentege` | `float` | Pourcentage d'humidité généré |
+
+---
+
+## Terrain & Placement Constraints
+
+| YAML key | C# field | Type | Description |
+|----------|----------|------|-------------|
+| `needsEquatorialStrip` | `needsEquatorialStrip` | `bool` | Doit être placé sur la bande équatoriale |
+| `needsPressure` | `needsPressure` | `bool` | Requiert une pression atmosphérique |
+| `needsBreathableAtmosphere` | `needsBreathableAtmosphere` | `bool` | Requiert une atmosphère respirable |
+| `orbitalPlacement` | `orbitalPlacement` | `bool` | Placement orbital (hors sol) |
+| `needsEvenTerrain` | `needsEvenTerrain` | `bool` | Requiert un terrain plat |
+| `isBaseStarter` | `isBaseStarter` | `bool` | Bâtiment de départ de base |
+
+---
+
+## Ships & Transport
+
+| YAML key | C# field | Type | Description |
+|----------|----------|------|-------------|
+| `shipCapacity` | `shipCapacity` | `int` | Capacité de vaisseaux |
+
+---
+
+## Coastal & Water
+
+| YAML key | C# field | Type | Description |
+|----------|----------|------|-------------|
+| `lookToCoast` | `lookToCoast` | `bool` | Doit faire face à la côte |
+| `coastMaxDistance` | `coastMaxDistance` | `float` | Distance maximum à la côte |
+| `waterSampleDistance` | `waterSampleDistance` | `float` | Distance d'échantillonnage de l'eau |
+| `lookToCoastPrecision` | `lookToCoastPrecision` | `float` | Précision d'orientation côtière |
+| `lookToCoastSegmentationPrecision` | `lookToCoastSegmentationPrecision` | `float` | Précision de segmentation côtière |
+| `minimunWaterSamples` | `minimunWaterSamples` | `int` | Nombre minimum d'échantillons d'eau |
+| `isAquaticVersionOf` | `isAquaticVersionOf` | `!building` | Version aquatique d'un autre bâtiment |
+| `prefabZeppelinOverride` | `prefabZeppelinOverride` | `string` | Override de prefab zeppelin |
+| `waterNeededFactor` | `waterNeededFactor` | `float` | Facteur de besoin en eau |
+| `waterNeededRadius` | `waterNeededRadius` | `float` | Rayon de détection de l'eau |
+
+---
+
+## Farming
+
+| YAML key | C# field | Type | Description |
+|----------|----------|------|-------------|
+| `farmMinRequiredTerrain` | `farmMinRequiredTerrain` | `float` | Surface de terrain minimale requise |
+| `farmSpawnRadius` | `farmSpawnRadius` | `float` | Rayon de spawn des cultures |
+
+---
+
+## Pipes / Water Network
+
+| YAML key | C# field | Type | Description |
+|----------|----------|------|-------------|
+| `pipesProduction` | `pipesProduction` | `float` | Production injectée dans le réseau de tuyaux |
+| `pipesConsumption` | `pipesConsumption` | `float` | Consommation depuis le réseau de tuyaux |
+| `extendsPipesCluster` | `extendsPipesCluster` | `bool` | Étend le réseau de tuyaux |
+| `pipesClusterRadius` | `pipesClusterRadius` | `float` | Rayon d'extension du réseau de tuyaux |
+
+---
+
+## Districts & Hubs
+
+| YAML key | C# field | Type | Description |
+|----------|----------|------|-------------|
+| `isWorkerHub` | `isWorkerHub` | `bool` | Est un hub de travailleurs |
+| `isDistrictHub` | `isDistrictHub` | `bool` | Est un hub de district |
+| `isAnimalSanctuary` | `isAnimalSanctuary` | `bool` | Est un sanctuaire pour animaux |
+
+---
+
+## Notes
+
+### Backing fields (propriétés auto C#)
+Les champs `_003CX_003Ek__BackingField` sont des backing fields de propriétés auto générés par le compilateur C#. Le nom YAML correspond au nom de la propriété sans le préfixe/suffixe :
+- `_003CcompactName_003Ek__BackingField` → YAML key : `compactName`
+- `_003Cknowledge_003Ek__BackingField` → YAML key : `knowledge`
+
+### Champs avec underscore préfixe
+- `_scalesToResourceVein` → YAML key : `scalesToResourceVein`
+- `_waySnapRadius` → YAML key : `waySnapRadius`
+- `_reservedRadius` → YAML key : `reservedRadius`
 | `energyStorageCapacity` | Number | Energy storage capacity | ⚠️ Unvalidated |
 | `extendsPowerCluster` | Boolean | Extends power network | ⚠️ Unvalidated |
 | `powerClusterRadius` | Number | Power network reach | ⚠️ Unvalidated |
