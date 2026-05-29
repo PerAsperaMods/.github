@@ -1,0 +1,96 @@
+name: Sync Wiki
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '*.md'
+      - 'advanced/*.md'
+      - 'architecture/*.md'
+      - 'agents/*.md'
+      - 'community/*.md'
+      - 'development/*.md'
+      - 'guides/*.md'
+      - 'native-classes/*.md'
+      - 'reference/*.md'
+      - 'sdk/*.md'
+      - 'technical/*.md'
+      - 'troubleshooting/*.md'
+      - 'tutorials/*.md'
+      - 'getting-started/*.md'
+
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Clone wiki
+        run: |
+          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.wiki.git _wiki
+
+      - name: Sync files to wiki
+        run: |
+          SRC="."
+          DST="_wiki"
+
+          # Root-level .md files (skip internal files)
+          SKIP=("README.md" "MIGRATION-REPORT.md")
+          for f in "$SRC"/*.md; do
+            name=$(basename "$f")
+            skip=false
+            for s in "${SKIP[@]}"; do [[ "$name" == "$s" ]] && skip=true && break; done
+            if [ "$skip" = false ]; then
+              cp "$f" "$DST/$name"
+              echo "Copied: $name"
+            fi
+          done
+
+          # Subdirectories → flattened with prefix
+          declare -A DIRS=(
+            [advanced]="Advanced"
+            [architecture]="Architecture"
+            [agents]="Agents"
+            [community]="Community"
+            [development]="Development"
+            [guides]="Guide"
+            [native-classes]="Native"
+            [reference]="Reference"
+            [sdk]="SDK"
+            [technical]="Technical"
+            [troubleshooting]="Troubleshooting"
+            [tutorials]="Tutorial"
+            [getting-started]="GettingStarted"
+          )
+
+          for dir in "${!DIRS[@]}"; do
+            prefix="${DIRS[$dir]}"
+            if [ -d "$SRC/$dir" ]; then
+              for f in "$SRC/$dir"/*.md; do
+                [ -f "$f" ] || continue
+                name=$(basename "$f")
+                newname="${prefix}-${name}"
+                cp "$f" "$DST/$newname"
+                echo "Copied: $dir/$name → $newname"
+              done
+            fi
+          done
+
+      - name: Commit and push wiki
+        run: |
+          cd _wiki
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to sync."
+          else
+            git commit -m "docs: sync wiki (${GITHUB_SHA:0:7})"
+            git push
+          fi
