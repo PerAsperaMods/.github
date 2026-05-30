@@ -355,7 +355,7 @@ F:\ModPeraspera\                      # Root project directory
 ### Specialized Agents Available
 - **[per-aspera-bepinex](agents/per-aspera-bepinex.md)** - C# IL2CPP development (updated with BepInX 6 docs)
 - **[per-aspera-bepinx-core](agents/per-aspera-bepinx-core.md)** - Advanced runtime patching
-- **[per-aspera-sdk](agents/per-aspera-sdk.md)** - Game API mastery  
+- **[per-aspera-sdk-coordinator](agents/per-aspera-sdk-coordinator.md)** - All SDK needs: GameAPI, Climate, Events, Wrappers, Commands, Core
 - **[per-aspera-yaml](agents/per-aspera-yaml.md)** - YAML datamodel expert
 - **[per-aspera-ci-cd](agents/per-aspera-ci-cd.md)** - GitHub Actions automation
 - **[per-aspera-architecture](agents/per-aspera-architecture.md)** - System design & architecture
@@ -370,7 +370,7 @@ F:\SteamLibrary\steamapps\common\Per Aspera\  # Game installation
 ### Specialized Agents Available
 - **[per-aspera-bepinex](agents/per-aspera-bepinex.md)** - C# IL2CPP development (updated with BepInX 6 docs)
 - **[per-aspera-bepinx-core](agents/per-aspera-bepinx-core.md)** - Advanced runtime patching
-- **[per-aspera-sdk](agents/per-aspera-sdk.md)** - Game API mastery  
+- **[per-aspera-sdk-coordinator](agents/per-aspera-sdk-coordinator.md)** - All SDK needs: GameAPI, Climate, Events, Wrappers, Commands, Core
 - **[per-aspera-sdk-ui](agents/per-aspera-sdk-ui.md)** - Unity GUI/IMGUI, UI integration, Input systems
 - **[per-aspera-yaml](agents/per-aspera-yaml.md)** - YAML datamodel expert
 - **[per-aspera-ci-cd](agents/per-aspera-ci-cd.md)** - GitHub Actions automation

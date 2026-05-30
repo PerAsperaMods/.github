@@ -1,9 +1,11 @@
 ---
 description: >
-  Agent coordinateur pour l'écosystème SDK Per Aspera. Route intelligemment
-  vers les agents spécialisés, gère les workflows multi-composants et
-  assure l\'intégration cohérente entre tous les projets SDK.
-tools: ['vscode', 'read', 'edit', 'search', 'semantic_search', 'grep_search', 'agent', 'runSubagent', 'manage_todo_list']
+  The Per Aspera SDK agent. Use for all SDK needs: GameAPI access (BaseGame,
+  Universe, Planet, Building), Climate system, Events (ModEventBus, EnhancedEventBus),
+  GetterOverride runtime modifications, Wrappers (PlanetWrapper, WrapperFactory),
+  Commands (CommandExecutor), and Core utilities (LogAspera, ReflectionHelpers).
+  Single entry point for all PerAspera.GameAPI.* development.
+tools: ['vscode', 'read', 'edit', 'search', 'semantic_search', 'grep_search', 'agent', 'manage_todo_list']
 ---
 
 # 🎯 SDK Coordinator Agent - Complete SDK Ecosystem Management (UPDATED)

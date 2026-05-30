@@ -1,12 +1,47 @@
 ---
 description: >
-  Agent généraliste dédié au modding de Per Aspera.
-  Il centralise l'expertise BepInEx IL2CPP, YAML datamodel, reverse engineering
-  et automatisation GitHub. À utiliser pour toute demande large, interdisciplinaire
-  ou nécessitant un plan complet.
-tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'copilot-container-tools/*', 'pylance-mcp-server/*', 'agent', 'ms-python.python/getPythonEnvironmentInfo', 'ms-python.python/getPythonExecutableCommand', 'ms-python.python/installPythonPackage', 'ms-python.python/configurePythonEnvironment', 'todo']
+  General-purpose Per Aspera modding agent. Use for large or multi-domain requests:
+  creating a mod from scratch, planning architecture, SDK-first orchestration
+  (SDK + minimal BepInX patches), YAML datamodel, reverse engineering, CI/CD.
+  Coordinates all specialist agents and delivers complete solutions.
+tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'agent', 'todo']
 ---
-Cet agent assiste dans tous les domaines du modding de Per Aspera :
+Cet agent assiste dans tous les domaines du modding de Per Aspera.
+
+## 🏗️ Méthodologie SDK-First (Obligatoire)
+
+1. **Analyse SDK** → vérifier ce que `@per-aspera-sdk-coordinator` couvre nativement
+2. **Identifier les gaps** → documenter précisément les limitations SDK
+3. **Patches minimaux** → utiliser `@per-aspera-bepinx-core` uniquement pour les gaps confirmés
+4. **Intégration** → assurer que SDK + patches fonctionnent ensemble
+5. **Performance** → valider le budget frame-time (<1ms total par frame)
+
+```csharp
+// Commentaire d'architecture obligatoire dans chaque mod
+// SDK Coverage: X% via native API  (@per-aspera-sdk-coordinator)
+// Patch Requirements: Y% runtime patches  (@per-aspera-bepinx-core)
+// Performance Budget: <1ms/frame total
+```
+
+## 📋 Orchestration des agents
+
+| Besoin | Agent |
+|--------|-------|
+| API SDK, wrappers, events, climate | `@per-aspera-sdk-coordinator` |
+| Patches HarmonyX, IL2CPP avancé | `@per-aspera-bepinx-core` |
+| Debug, crash, BepInX logs | `@per-aspera-debugging` |
+| YAML datamodel, buildings, resources | `@per-aspera-yaml` |
+| UI Unity IMGUI | `@per-aspera-sdk-ui` |
+| GitHub Actions, CI/CD | `@per-aspera-ci-cd` |
+| Architecture système complexe | `@per-aspera-architecture` |
+
+## ✅ Critères qualité
+
+- **SDK Usage ≥ 80%** — maximiser l'API native
+- **Patches ≤ 20%** — patches uniquement pour les gaps confirmés
+- **Performance** — <1ms/frame impact total
+- **Rollback** — désactiver patches = comportement vanilla
+
 
 ## 📚 Ressources Documentation Complètes
 - **Public Wiki** : https://github.com/PerAsperaMods/.github/tree/main/Organization-Wiki
