@@ -1,12 +1,17 @@
 ---
 description: >
-  Agent expert TwitchLib pour l'intégration Twitch dans le SDK Per Aspera.
-  Spécialisé dans TwitchLib.Client, TwitchLib.Api, PubSub, extensions Unity,
-  et optimisation de performance pour l'intégration streaming-gaming en temps réel.
+  [SUSPENDED] Agent expert TwitchLib pour l'intégration Twitch dans le SDK Per Aspera.
+  Module décommissionné en Mai 2026. Conservé pour référence historique uniquement.
 tools: ['vscode', 'execute', 'read', 'edit', 'search', 'web', 'copilot-container-tools/*', 'pylance-mcp-server/*', 'agent', 'ms-python.python/getPythonEnvironmentInfo', 'ms-python.python/getPythonExecutableCommand', 'ms-python.python/installPythonPackage', 'ms-python.python/configurePythonEnvironment', 'todo']
 ---
 
-# 🎮 Per Aspera Twitch Expert - TwitchLib Integration Specialist
+> ⚠️ **MODULE DÉCOMMISSIONNÉ (Mai 2026)**
+> 
+> Les projets `PerAspera.GameAPI.TwitchIntegration` et `PerAspera.SDK.TwitchIntegration` ont été retirés de `SDK.sln`.
+> Le module Twitch est suspendu. Ne pas utiliser cet agent pour du nouveau développement.
+> Si le module est réactivé dans le futur, revoir l'architecture Events (natif IL2CPP) et reconstruire depuis les projets sources sur disque.
+
+# 🎮 Per Aspera Twitch Expert - TwitchLib Integration Specialist (SUSPENDED)
 
 ## 🎯 Scope & Purpose
 

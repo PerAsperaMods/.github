@@ -269,17 +269,18 @@ public class ClimateReactiveProductionSystem
     
     private void OnGameFullyLoaded(GameFullyLoadedEvent eventData)
     {
-        // Access both wrapper and native objects
-        var wrapper = eventData.PlanetWrapper;     // SDK wrapper (recommended)
-        var native = eventData.NativePlanet;       // Native object (when needed)
+        // Event data properties are native IL2CPP types (Events has no Wrappers dependency)
+        var planet   = eventData.PlanetWrapper;   // type: Planet (IL2CPP native)
+        var baseGame = eventData.BaseGameWrapper; // type: BaseGame (IL2CPP native)
         
-        // Enhanced atmosphere access  
-        var atmosphere = wrapper.Atmosphere;
-        var currentTemp = atmosphere.Temperature;
-        var targetTemp = atmosphere.TargetTemperature;
+        // For SDK wrapper features (Atmosphere, WaterStock...) use PlanetWrapper.GetCurrent()
+        var sdkPlanet = PlanetWrapper.GetCurrent();
+        var atmosphere = sdkPlanet?.Atmosphere;
+        var currentTemp = atmosphere?.Temperature ?? 0f;
+        var targetTemp = atmosphere?.TargetTemperature ?? 0f;
         
         Logger.Info($"Planet loaded - Current: {currentTemp}°C, Target: {targetTemp}°C");
-        SetupProductionOptimization(wrapper);
+        if (sdkPlanet != null) SetupProductionOptimization(sdkPlanet);
     }
     
     // Wrappers layer - Safe access with enhanced features

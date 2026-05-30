@@ -37,24 +37,26 @@ EnhancedEventBus.SubscribeToPlanetCreated(OnPlanetCreated);
 EnhancedEventBus.SubscribeToUniverseCreated(OnUniverseCreated);
 EnhancedEventBus.SubscribeToBaseGameCreated(OnBaseGameCreated);
 
-// SDK Event handlers with wrapper integration
+// SDK Event handlers — event data contains native IL2CPP types
 public void OnGameFullyLoaded(GameFullyLoadedEvent eventData)
 {
-    // Both wrapper and native access available
-    var wrapper = eventData.BaseGameWrapper;   // SDK wrapper (type-safe)
-    var native = eventData.NativeBaseGame;     // IL2CPP native object
+    // Properties are native IL2CPP types (BaseGame, Universe, Planet)
+    // NOT wrapper classes — Events project has no Wrappers dependency
+    var baseGame = eventData.BaseGameWrapper;  // type: BaseGame (IL2CPP native)
+    var universe = eventData.UniverseWrapper;  // type: Universe (IL2CPP native)
+    var planet   = eventData.PlanetWrapper;    // type: Planet (IL2CPP native)
     
+    // For SDK wrapper methods, use PlanetWrapper.GetCurrent() or GameApi.wrapper.planet
     LogAspera.Info("Game fully loaded - all systems available");
-    InitializeModSystems(wrapper);
+    InitializeModSystems(baseGame);
 }
 
 public void OnLoadFinished(OnLoadFinishedEvent eventData)
 {
     if (eventData.BaseGameAvailable)
     {
-        var base = eventData.BaseGameWrapper;
-        var universe = eventData.UniverseWrapper;
-        ProcessGameInitialization(base, universe);
+        var baseGame = eventData.BaseGameWrapper;  // type: BaseGame
+        ProcessGameInitialization(baseGame);
     }
 }
 ```
@@ -74,24 +76,22 @@ public void OnLoadFinished(OnLoadFinishedEvent eventData)
 - **`UniverseCreatedEvent`** - Universe instance creation  
 - **`PlanetCreatedEvent`** - Planet instance creation
 
-### **Twitch Integration Events:**
-- **`TwitchFollowSDKEvent`** - New Twitch follower detected
-- **`TwitchSubscribeSDKEvent`** - New Twitch subscriber
-- **`TwitchBitsDonationSDKEvent`** - Bits donation received
+> ⚠️ **Architecture note (May 2026)**: `PerAspera.GameAPI.Events` does NOT reference `PerAspera.GameAPI.Wrappers`.
+> Event data properties (`BaseGameWrapper`, `UniverseWrapper`, `PlanetWrapper`) are typed as native IL2CPP objects
+> (`BaseGame`, `Universe`, `Planet`) — not SDK wrapper classes. The property names are preserved for API compatibility.
 
 ### **Event Data Access Patterns:**
 ```csharp
-// System events provide both wrapper and native access
+// Event data properties contain native IL2CPP objects
 public void OnPlanetCreated(PlanetCreatedEvent eventData)
 {
-    var planetWrapper = eventData.PlanetWrapper;    // SDK wrapper (recommended)
-    var universeWrapper = eventData.UniverseWrapper; // Parent wrapper
-    var nativePlanet = eventData.NativePlanet;       // IL2CPP native object
+    var planet   = eventData.PlanetWrapper;   // type: Planet (IL2CPP native)
+    var universe = eventData.UniverseWrapper; // type: Universe (IL2CPP native)
+    // No separate NativePlanet property — PlanetWrapper IS the native object
     
-    // Safe access to planet systems
-    var atmosphere = planetWrapper.Atmosphere;
-    var temperature = atmosphere.Temperature;
-    var resources = planetWrapper.GetResourcesSafely();
+    // To use SDK wrapper features, create a PlanetWrapper on demand:
+    var sdkPlanet = PlanetWrapper.GetCurrent();  // from PerAspera.GameAPI.Wrappers
+    var atmosphere = sdkPlanet?.Atmosphere;
 }
 ```
 
