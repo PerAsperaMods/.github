@@ -62,7 +62,12 @@ Load these on-demand by typing `/` in chat, or they are auto-loaded when relevan
 |-------|---------|-------------|
 | `/per-aspera-yaml-modding` | YAML, building, resource, technology, knowledge, manifest | Complete YAML reference: all properties, tags, index rules, validated examples |
 
-**Skill files**: `F:\ModPeraspera\.github\skills\<name>\SKILL.md`
+### 🎮 Game Structure & Architecture Skills
+| Skill | Trigger | Description |
+|-------|---------|-------------|
+| `/per-aspera-game-structure` | BaseGame, Universe, Planet, Handle, Keeper, KeeperMap, buildings access, factions, hierarchy, class names, properties | Real game architecture: BaseGame→Universe→Planet hierarchy, Handle/Keeper entity access, Planet getters, key class signatures, scene structure, anti-hallucination patterns |
+
+**Skill files**: `F:\ModPeraspera\per-aspera-skills\.github\skills\<name>\SKILL.md` ([PerAsperaMods/per-aspera-skills](https://github.com/PerAsperaMods/per-aspera-skills))
 
 
 
@@ -167,16 +172,6 @@ MonoBehaviour GUI, user interface → @per-aspera-sdk-ui
 GUIStyle, GUISkin, theming → @per-aspera-sdk-ui
 ```
 
-#### **🎮 Twitch Integration** - Routes to Twitch Experts:
-```csharp
-// Twitch patterns
-"Twitch", "stream", "viewer", "chat" → @per-aspera-twitch-expert
-"TwitchLib", "channel points", "events" → @per-aspera-twitch-expert
-"AI control", "faction", "interactive stream" → @per-aspera-twitch-expert
-"Carmine", "second AI", "Twitch controlled" → @per-aspera-twitch-expert
-"stream integration", "viewer commands" → @per-aspera-twitch-expert
-```
-
 #### **📄 YAML & Content** - Routes to Content Specialists:
 ```yaml
 # YAML patterns  
@@ -229,6 +224,16 @@ Pattern: MVC, Observer, Factory → @per-aspera-architecture
 "NullReferenceException", "TypeLoadException", "MissingMethodException" → @per-aspera-debugging
 "log output", "BepInX log", "LogOutput.log" → @per-aspera-debugging
 "patch not running", "plugin not loading", "not working" → @per-aspera-debugging
+```
+
+#### **🎮 Game Structure** - Load Skill `/per-aspera-game-structure`:
+```
+// Structure & architecture du jeu
+"BaseGame", "Universe", "Planet", "hierarchy" → /per-aspera-game-structure
+"Handle", "Keeper", "KeeperMap", "IHandleable" → /per-aspera-game-structure
+"buildings access", "factions", "entity access" → /per-aspera-game-structure
+"class name", "property name", "access path" → /per-aspera-game-structure
+"Planet getters", "Atmosphere", "scene structure" → /per-aspera-game-structure
 ```
 
 ### 🎛️ **Available Specialized Agents**
