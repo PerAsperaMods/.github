@@ -82,8 +82,12 @@ Per Aspera is a Mars terraforming strategy game where you build colonies and tra
 - **[Code of Conduct](community/Code-of-Conduct.md)** - Community standards
 - **[Release Notes](community/CHANGELOG.md)** - Version history
 
-### 📦 Content Modification
-- **[YAML Datamodel Guide](content/YAML-Datamodel.md)** - Buildings, resources, tech
+### 📦 Content Modification (YAML — no C# required)
+- **[YAML Modding Hub](yaml-modding/README.md)** - Start here for pure-YAML mods
+- **[How Loading Actually Works](yaml-modding/YAML-Modding-Internals.md)** - Pipeline, tags, merge order, silent failures
+- **[Error Decoder](yaml-modding/YAML-Error-Decoder.md)** - Map cryptic NullReferenceExceptions to root causes
+- **[Schema Reference](yaml-modding/schemas/README.md)** - Every type, every field (generated from game code)
+- **[Tooling Roadmap](yaml-modding/YAML-Tooling-Roadmap.md)** - Validator, dump plugin, mod creator
 - **[Localization Guide](content/Localization.md)** - Multi-language support
 - **[Asset Creation](content/Asset-Creation.md)** - Graphics, audio & UI
 - **[Save Compatibility](content/Save-Compatibility.md)** - Maintain save file integrity

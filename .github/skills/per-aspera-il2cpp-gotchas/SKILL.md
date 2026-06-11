@@ -296,4 +296,4 @@ private void UsePanel()
 ## Reference Files
 
 - `F:\ModPeraspera\Internal_doc\ARCHITECTURE\VALIDATED-PATTERNS.md` — Verified working patterns
-- `F:\ModPeraspera\SDK-Enhanced-Classes\Capabilities-Matrix.md` — SDK vs vanilla capabilities
+- `F:\ModPeraspera\docs\Capabilities-Matrix.md` — SDK vs vanilla capabilities (2026-06)

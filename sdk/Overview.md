@@ -436,7 +436,75 @@ foreach (var panel in solarPanels)
 
 ---
 
-## 🌡️ Climate API
+## � Commands & Custom YAML Actions
+
+### Execute game commands from C#
+
+```csharp
+using PerAspera.GameAPI.Commands;
+
+// Subscribe to game-ready event, then initialize
+EnhancedEventBus.SubscribeToGameCommandsReady(evt =>
+{
+    Commands.Initialize(evt);
+    // Commands ready to use
+});
+```
+
+### Create your own YAML-triggerable action
+
+Register a custom command that can be used in any Special Project YAML:
+
+```csharp
+// 1. Implement IModTextAction
+public class GiveResourcesAction : IModTextAction
+{
+    private static readonly LogAspera _log = new LogAspera("GiveResources");
+    public string CommandName => "GiveResources";   // matches YAML "command:" value
+
+    public bool Execute(string[] args, GameCommandsReadyEvent? ctx)
+    {
+        string resourceKey = ActionContextHelper.GetOptionalString(args, 0, "");
+        if (!ActionContextHelper.TryGetPositiveFloat(args, 1, out float amount, _log, CommandName))
+            return false;
+        if (!ActionContextHelper.TryGetFaction(ctx, out var faction, _log, CommandName))
+            return false;
+
+        // your logic here
+        _log.Info($"[GiveResources] {amount}x {resourceKey} → {faction!.name}");
+        return true;
+    }
+}
+
+// 2. Register in plugin Load()
+public override void Load()
+{
+    Commands.RegisterAction<GiveResourcesAction>();
+}
+```
+
+YAML usage:
+```yaml
+launchActions:
+  - command: GiveResources
+    arguments:
+      - water
+      - "1000"
+    daysDelay: 0.0
+```
+
+### Built-in actions (ready to use in YAML)
+
+| Command | Arguments | Effect |
+|---|---|---|
+| `GiveSciencePoints` | `[0]` amount (float) | Adds research points to active technology |
+| `ShowMessage` | `[0]` message, `[1]` level | Logs a message (Info/Warning/Error) |
+
+> 📖 **Full guide**: [sdk/Custom-YAML-Actions.md](Custom-YAML-Actions.md)
+
+---
+
+## �🌡️ Climate API
 
 Specialized helpers for climate and terraforming systems.
 
@@ -561,6 +629,7 @@ string str = eventData.SomeString;     // ✅ SDK handles conversion
 - **[Override System Guide](Overrides.md)** - Runtime modification patterns
 - **[Climate API Guide](Climate.md)** - Terraforming system details
 - **[Commands API](Commands.md)** - Game command integration
+- **[Custom YAML Actions](Custom-YAML-Actions.md)** - Create your own YAML-triggerable commands
 
 ---
 
@@ -616,5 +685,5 @@ public class Milestones : PerAsperaSDKPlugin
 ---
 
 **Current Version:** 1.1.0  
-**Last Updated:** December 17, 2025  
+**Last Updated:** May 30, 2026  
 **Maintained by:** PerAspera Modding Community

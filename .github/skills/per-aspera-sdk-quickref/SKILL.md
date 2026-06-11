@@ -128,7 +128,7 @@ var buildings       = planet.GetBuildingsSafely();
 Need to access/modify game data?
          │
          ▼
-Check SDK-Enhanced-Classes\Capabilities-Matrix.md
+Check docs\Capabilities-Matrix.md
          │
     ┌────┴────┐
    SDK has   SDK doesn't
@@ -204,8 +204,8 @@ public class MyPlugin : BasePlugin
 
 ## Reference Files
 
-- `F:\ModPeraspera\SDK-Enhanced-Classes\Capabilities-Matrix.md` — Vanilla vs SDK comparison table
-- `F:\ModPeraspera\SDK-Enhanced-Classes\Planet-Enhanced.md` — Planet wrapper full documentation
+- `F:\ModPeraspera\docs\Capabilities-Matrix.md` — Vanilla vs SDK comparison table (2026-06)
+- `F:\ModPeraspera\docs\Planet-Enhanced.md` — Planet wrapper full documentation (2026-06)
 - `F:\ModPeraspera\Organization-Wiki\reference\SDK-DLL-Props-Guide.md` — sdkDLL.props full guide
 - `F:\ModPeraspera\Organization-Wiki\reference\Game-Commands.md` — 55 validated game commands
 - `F:\ModPeraspera\SDK\sdkDLL.props` — The actual props file
