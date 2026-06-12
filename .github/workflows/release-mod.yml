@@ -185,8 +185,9 @@ jobs:
         run: |
           $csproj = '${{ inputs.csproj }}'
           if ([string]::IsNullOrEmpty($csproj)) { $csproj = '${{ inputs.mod-id }}.csproj' }
-          $binDir = Join-Path (Split-Path $csproj -Parent) "bin\Release\net6.0"
-          if ([string]::IsNullOrEmpty((Split-Path $csproj -Parent))) { $binDir = "bin\Release\net6.0" }
+          $parent = Split-Path $csproj -Parent
+          if ([string]::IsNullOrEmpty($parent)) { $parent = '.' }
+          $binDir = Join-Path $parent "bin\Release\net6.0"
 
           $dest = "package\BepInEx\plugins\${{ inputs.mod-id }}"
           New-Item -ItemType Directory -Force $dest | Out-Null
