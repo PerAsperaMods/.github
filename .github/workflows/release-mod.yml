@@ -1,0 +1,199 @@
+name: Release Mod (reusable)
+
+# Workflow reutilisable org PerAsperaMods — publie une release de mod au format
+# standard : un ZIP dont la racine = racine du jeu (voir mod-registry/CONVENTIONS.md).
+#   - yaml   : Per Aspera_Data/StreamingAssets/Mods/<mod-id>/  (contenu du repo)
+#   - csharp : BepInEx/plugins/<mod-id>/<Mod>.dll  (build contre le modder-pack SDK
+#              + interop privee gamelibs-per-aspera, secret GAMELIBS_TOKEN requis)
+#
+# Caller minimal (declenche sur tag v*) :
+#   jobs:
+#     release:
+#       uses: PerAsperaMods/.github/.github/workflows/release-mod.yml@main
+#       with:
+#         mod-id: WaterWork
+#         mod-type: yaml
+#       secrets:
+#         gamelibs-token: ${{ secrets.GAMELIBS_TOKEN }}   # csharp seulement
+
+on:
+  workflow_call:
+    inputs:
+      mod-id:
+        description: Nom du dossier d'installation (modId du manifest YAML / nom du plugin C#)
+        required: true
+        type: string
+      mod-type:
+        description: yaml ou csharp
+        required: true
+        type: string
+      csproj:
+        description: Chemin du .csproj (csharp seulement, default = <mod-id>.csproj a la racine)
+        required: false
+        type: string
+        default: ''
+      content-dir:
+        description: Sous-dossier contenant le mod YAML (default = racine du repo)
+        required: false
+        type: string
+        default: '.'
+      sdk-tag:
+        description: Tag de la release SDK pour le build csharp (default = latest)
+        required: false
+        type: string
+        default: ''
+      interop-tag:
+        description: Tag de l'archive interop sur gamelibs-per-aspera
+        required: false
+        type: string
+        default: 'interop-1.8.1'
+    secrets:
+      gamelibs-token:
+        description: PAT contents:read sur PerAsperaMods/gamelibs-per-aspera (csharp seulement)
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  release-yaml:
+    if: inputs.mod-type == 'yaml'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Stage mod content
+        shell: bash
+        run: |
+          dest="package/Per Aspera_Data/StreamingAssets/Mods/${{ inputs.mod-id }}"
+          mkdir -p "$dest"
+          rsync -a "${{ inputs.content-dir }}/" "$dest/" \
+            --exclude '.git*' --exclude '.github' --exclude 'README.md' --exclude 'LICENSE*' --exclude 'package'
+          echo "Contenu du zip :"
+          find package -type f | head -50
+
+      - name: Zip and release
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          zip_name="${{ inputs.mod-id }}-${GITHUB_REF_NAME}.zip"
+          (cd package && zip -r "../$zip_name" .)
+          gh release create "$GITHUB_REF_NAME" "$zip_name#${{ inputs.mod-id }} (extraire a la racine du jeu)" \
+            --title "${{ inputs.mod-id }} $GITHUB_REF_NAME" --generate-notes
+
+  release-csharp:
+    if: inputs.mod-type == 'csharp'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 6
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 6.0.x
+
+      - name: Download SDK modder pack
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $sdkPack = Join-Path $env:RUNNER_TEMP "sdk-pack"
+          New-Item -ItemType Directory -Force $sdkPack | Out-Null
+          $tagArg = '${{ inputs.sdk-tag }}'
+          if ([string]::IsNullOrEmpty($tagArg)) {
+            gh release download --repo PerAsperaMods/PerAspera-SDK --pattern "*modder-pack.zip" --output "$sdkPack\pack.zip"
+          } else {
+            gh release download $tagArg --repo PerAsperaMods/PerAspera-SDK --pattern "*modder-pack.zip" --output "$sdkPack\pack.zip"
+          }
+          Expand-Archive "$sdkPack\pack.zip" -DestinationPath $sdkPack
+          if (-not (Test-Path "$sdkPack\PerAspera.ModSDK.dll")) { Write-Error "Modder pack invalide"; exit 1 }
+          "SDKPACK_DIR=$sdkPack" >> $env:GITHUB_ENV
+
+      - name: Download game interop (private)
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.gamelibs-token }}
+        run: |
+          if ([string]::IsNullOrEmpty($env:GH_TOKEN)) { Write-Error "Secret gamelibs-token requis pour mod-type csharp"; exit 1 }
+          gh release download ${{ inputs.interop-tag }} `
+            --repo PerAsperaMods/gamelibs-per-aspera `
+            --pattern "interop-*.zip" --output interop.zip
+          $interop = Join-Path $env:RUNNER_TEMP "interop"
+          New-Item -ItemType Directory -Force $interop | Out-Null
+          Expand-Archive interop.zip -DestinationPath $interop
+          $count = (Get-ChildItem "$interop\*.dll").Count
+          Write-Host "Interop: $count DLLs"
+          if ($count -lt 100) { Write-Error "Archive interop incomplete"; exit 1 }
+          "INTEROP_DIR=$interop" >> $env:GITHUB_ENV
+
+      - name: Generate CI build props
+        shell: pwsh
+        run: |
+          # Directory.Build.props injecte : framework + refs SDK (modder-pack) + refs interop
+          # (3 assemblies jeu publicisees + le reste, pattern two-target — %(FullPath) ne se
+          # resout pas dans un ItemGroup statique).
+          $props = @'
+          <Project>
+            <PropertyGroup>
+              <TargetFramework>net6.0</TargetFramework>
+              <LangVersion>latest</LangVersion>
+              <ImplicitUsings>enable</ImplicitUsings>
+              <Nullable>enable</Nullable>
+              <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+              <RestoreSources>https://api.nuget.org/v3/index.json;https://nuget.bepinex.dev/v3/index.json</RestoreSources>
+            </PropertyGroup>
+            <ItemGroup>
+              <PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.2" PrivateAssets="all" />
+              <Reference Include="PerAspera.Core"><HintPath>__SDKPACK__\PerAspera.Core.dll</HintPath><Private>false</Private></Reference>
+              <Reference Include="PerAspera.GameAPI"><HintPath>__SDKPACK__\PerAspera.GameAPI.dll</HintPath><Private>false</Private></Reference>
+              <Reference Include="PerAspera.GameAPI.Database"><HintPath>__SDKPACK__\PerAspera.GameAPI.Database.dll</HintPath><Private>false</Private></Reference>
+              <Reference Include="PerAspera.ModSDK"><HintPath>__SDKPACK__\PerAspera.ModSDK.dll</HintPath><Private>false</Private></Reference>
+            </ItemGroup>
+            <Target Name="GatherGameInterop">
+              <ItemGroup>
+                <_GameInterop Include="__INTEROP__\*.dll"
+                              Exclude="__INTEROP__\Assembly-CSharp.dll;__INTEROP__\ScriptsAssembly.dll;__INTEROP__\PluginsAssembly.dll" />
+              </ItemGroup>
+            </Target>
+            <Target Name="AddGameInterop" BeforeTargets="ResolveAssemblyReferences" DependsOnTargets="GatherGameInterop">
+              <ItemGroup>
+                <Reference Include="Assembly-CSharp" Publicize="true"><HintPath>__INTEROP__\Assembly-CSharp.dll</HintPath><Private>false</Private></Reference>
+                <Reference Include="ScriptsAssembly" Publicize="true"><HintPath>__INTEROP__\ScriptsAssembly.dll</HintPath><Private>false</Private></Reference>
+                <Reference Include="PluginsAssembly" Publicize="true"><HintPath>__INTEROP__\PluginsAssembly.dll</HintPath><Private>false</Private></Reference>
+                <Reference Include="%(_GameInterop.Filename)"><HintPath>%(_GameInterop.FullPath)</HintPath><Private>false</Private></Reference>
+              </ItemGroup>
+            </Target>
+          </Project>
+          '@
+          $props = $props.Replace('__SDKPACK__', $env:SDKPACK_DIR).Replace('__INTEROP__', $env:INTEROP_DIR)
+          Set-Content -Path "Directory.Build.props" -Value $props -Encoding utf8
+          Write-Host "Directory.Build.props CI genere."
+
+      - name: Build
+        shell: pwsh
+        run: |
+          $csproj = '${{ inputs.csproj }}'
+          if ([string]::IsNullOrEmpty($csproj)) { $csproj = '${{ inputs.mod-id }}.csproj' }
+          dotnet build $csproj -c Release --nologo
+          if ($LASTEXITCODE -ne 0) { Write-Error "Build echoue"; exit 1 }
+
+      - name: Package and release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $csproj = '${{ inputs.csproj }}'
+          if ([string]::IsNullOrEmpty($csproj)) { $csproj = '${{ inputs.mod-id }}.csproj' }
+          $binDir = Join-Path (Split-Path $csproj -Parent) "bin\Release\net6.0"
+          if ([string]::IsNullOrEmpty((Split-Path $csproj -Parent))) { $binDir = "bin\Release\net6.0" }
+
+          $dest = "package\BepInEx\plugins\${{ inputs.mod-id }}"
+          New-Item -ItemType Directory -Force $dest | Out-Null
+          Copy-Item "$binDir\*.dll" $dest\
+          Get-ChildItem $dest | ForEach-Object { Write-Host "  $($_.Name)" }
+
+          $zipName = "${{ inputs.mod-id }}-$env:GITHUB_REF_NAME.zip"
+          Compress-Archive -Path "package\*" -DestinationPath $zipName
+          gh release create $env:GITHUB_REF_NAME "$zipName#${{ inputs.mod-id }} (extraire a la racine du jeu)" `
+            --title "${{ inputs.mod-id }} $env:GITHUB_REF_NAME" --generate-notes
