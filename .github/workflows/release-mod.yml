@@ -47,6 +47,11 @@ on:
         required: false
         type: string
         default: 'interop-1.8.1'
+      prerelease:
+        description: Publier comme pre-release (dev/test, invisible aux joueurs)
+        required: false
+        type: boolean
+        default: false
     secrets:
       gamelibs-token:
         description: PAT contents:read sur PerAsperaMods/gamelibs-per-aspera (csharp seulement)
@@ -79,8 +84,9 @@ jobs:
         run: |
           zip_name="${{ inputs.mod-id }}-${GITHUB_REF_NAME}.zip"
           (cd package && zip -r "../$zip_name" .)
+          PRE_FLAG=""; [ "${{ inputs.prerelease }}" = "true" ] && PRE_FLAG="--prerelease"
           gh release create "$GITHUB_REF_NAME" "$zip_name#${{ inputs.mod-id }} (extraire a la racine du jeu)" \
-            --title "${{ inputs.mod-id }} $GITHUB_REF_NAME" --generate-notes
+            --title "${{ inputs.mod-id }} $GITHUB_REF_NAME" --generate-notes $PRE_FLAG
 
   release-csharp:
     if: inputs.mod-type == 'csharp'
@@ -196,5 +202,6 @@ jobs:
 
           $zipName = "${{ inputs.mod-id }}-$env:GITHUB_REF_NAME.zip"
           Compress-Archive -Path "package\*" -DestinationPath $zipName
+          $preFlag = if ('${{ inputs.prerelease }}' -eq 'true') { '--prerelease' } else { '' }
           gh release create $env:GITHUB_REF_NAME "$zipName#${{ inputs.mod-id }} (extraire a la racine du jeu)" `
-            --title "${{ inputs.mod-id }} $env:GITHUB_REF_NAME" --generate-notes
+            --title "${{ inputs.mod-id }} $env:GITHUB_REF_NAME" --generate-notes $preFlag
